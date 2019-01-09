@@ -36,7 +36,7 @@ namespace SuperSocket.SocketEngine
                 m_ListenSocket.Bind(this.EndPoint);
 
                 //Mono doesn't support it
-                if (Platform.SupportSocketIOControlByCodeEnum)
+                if (Platform.SupportSocketIOControlByCodeEnum  && !Platform.IsMono)
                 {
                     uint IOC_IN = 0x80000000;
                     uint IOC_VENDOR = 0x18000000;

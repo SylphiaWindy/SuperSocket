@@ -144,6 +144,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="supersocket_new.pfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="Command\ADD.py">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

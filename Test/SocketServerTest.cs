@@ -82,6 +82,11 @@ namespace SuperSocket.Test
             var serverConfig = configSource.Servers.FirstOrDefault();
             EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverConfig.Port);
 
+            TestWelcome(serverAddress, serverConfig.Name);
+        }
+        
+        protected void TestWelcome(EndPoint serverAddress, string serverName)
+        {
             using (Socket socket = CreateClientSocket())
             {
                 socket.Connect(serverAddress);
@@ -90,11 +95,11 @@ namespace SuperSocket.Test
                 using (ConsoleWriter writer = new ConsoleWriter(socketStream, m_Encoding, 1024 * 8))
                 {
                     string welcomeString = reader.ReadLine();
-                    Assert.AreEqual(string.Format(TestSession.WelcomeMessageFormat, serverConfig.Name), welcomeString);
+                    Assert.AreEqual(string.Format(TestSession.WelcomeMessageFormat, serverName), welcomeString);
                 }
             }
         }
-
+        
         [Test]
         public void TestSessionConnectedState()
         {

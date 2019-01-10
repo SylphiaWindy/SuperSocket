@@ -813,6 +813,11 @@ namespace SuperSocket.SocketBase
                 BasicSecurity = SslProtocols.None;
             }
 
+            return LoadCertificate(config);
+        }
+
+        private bool LoadCertificate(IServerConfig config)
+        {
             try
             {
                 var certificate = GetCertificate(config.Certificate);
@@ -838,7 +843,7 @@ namespace SuperSocket.SocketBase
                 return false;
             }
 
-            return true;
+            return true;            
         }
 
         /// <summary>
@@ -1382,6 +1387,14 @@ namespace SuperSocket.SocketBase
             appSession.Initialize(this, socketSession);
 
             return appSession;
+        }
+
+        /// <inheritdoc />
+        public bool ReloadCertificate()
+        {
+            var ret = LoadCertificate(Config);
+            if(ret && Logger.IsInfoEnabled) Logger.Info("Certificate have been reloaded.");
+            return ret;
         }
 
         /// <summary>

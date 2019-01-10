@@ -59,6 +59,11 @@ namespace SuperSocket.SocketBase
         /// <returns></returns>
         IAppSession CreateAppSession(ISocketSession socketSession);
 
+        /// <summary>
+        /// Signal the server to reload certificate in case of renewal/revocation
+        /// </summary>
+        /// <returns></returns>
+        bool ReloadCertificate();
 
         /// <summary>
         /// Registers the new created app session into the appserver's session container.

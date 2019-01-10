@@ -31,7 +31,7 @@ namespace SuperSocket.Test
                 m_BootStrap = null;
                 OnBootstrapCleared();
                 GC.Collect();
-                GC.WaitForFullGCComplete();
+                //GC.WaitForFullGCComplete();
             }
         }
 

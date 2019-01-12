@@ -104,24 +104,17 @@ namespace SuperSocket.SocketEngine
                 return null;
             }
 
+
+            IAppSession session = null;
             try
             {
                 ISocketSession socketSession;
-
                 if (security == SslProtocols.None)
                     socketSession = new AsyncSocketSession(client, socketEventArgsProxy);
                 else
                     socketSession = new AsyncStreamSocketSession(client, security, socketEventArgsProxy);
 
-                var session = CreateSession(client, socketSession);
-
-                if (session == null)
-                {
-                    socketEventArgsProxy.Reset();
-                    this.m_ReadWritePool.Push(socketEventArgsProxy);
-                    AppServer.AsyncRun(client.SafeClose);
-                    return null;
-                }
+                session = CreateSession(client, socketSession);
 
                 socketSession.Closed += SessionClosed;
 
@@ -142,7 +135,18 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception)
             {
+                session?.Close();
+                session = null;
                 return null;
+            }
+            finally
+            {
+                if (session == null)
+                {
+                    socketEventArgsProxy.Reset();
+                    this.m_ReadWritePool.Push(socketEventArgsProxy);
+                    AppServer.AsyncRun(client.SafeClose);
+                }
             }
 
             return null;

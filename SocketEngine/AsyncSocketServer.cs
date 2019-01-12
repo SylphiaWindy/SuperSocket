@@ -83,7 +83,10 @@ namespace SuperSocket.SocketEngine
         {
             if (IsStopped)
                 return;
-
+            if (!client.Connected)
+            {
+                return;
+            }
             ProcessNewClient(client, listener.Info.Security);
         }
 
@@ -101,39 +104,46 @@ namespace SuperSocket.SocketEngine
                 return null;
             }
 
-            ISocketSession socketSession;
-
-            if (security == SslProtocols.None)
-                socketSession = new AsyncSocketSession(client, socketEventArgsProxy);
-            else
-                socketSession = new AsyncStreamSocketSession(client, security, socketEventArgsProxy);
-
-            var session = CreateSession(client, socketSession);
-
-            if (session == null)
+            try
             {
-                socketEventArgsProxy.Reset();
-                this.m_ReadWritePool.Push(socketEventArgsProxy);
-                AppServer.AsyncRun(client.SafeClose);
-                return null;
-            }
+                ISocketSession socketSession;
 
-            socketSession.Closed += SessionClosed;
+                if (security == SslProtocols.None)
+                    socketSession = new AsyncSocketSession(client, socketEventArgsProxy);
+                else
+                    socketSession = new AsyncStreamSocketSession(client, security, socketEventArgsProxy);
 
-            var negotiateSession = socketSession as INegotiateSocketSession;
+                var session = CreateSession(client, socketSession);
 
-            if (negotiateSession == null)
-            {
-                if (RegisterSession(session))
+                if (session == null)
                 {
-                    AppServer.AsyncRun(() => socketSession.Start());
+                    socketEventArgsProxy.Reset();
+                    this.m_ReadWritePool.Push(socketEventArgsProxy);
+                    AppServer.AsyncRun(client.SafeClose);
+                    return null;
                 }
 
-                return session;
-            }
+                socketSession.Closed += SessionClosed;
 
-            negotiateSession.NegotiateCompleted += OnSocketSessionNegotiateCompleted;
-            negotiateSession.Negotiate();
+                var negotiateSession = socketSession as INegotiateSocketSession;
+
+                if (negotiateSession == null)
+                {
+                    if (RegisterSession(session))
+                    {
+                        AppServer.AsyncRun(() => socketSession.Start());
+                    }
+
+                    return session;
+                }
+
+                negotiateSession.NegotiateCompleted += OnSocketSessionNegotiateCompleted;
+                negotiateSession.Negotiate();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
 
             return null;
         }
